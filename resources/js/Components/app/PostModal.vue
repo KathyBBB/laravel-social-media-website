@@ -1,10 +1,10 @@
 <script setup>
-import {computed, ref, watch} from 'vue'
-import {XMarkIcon, PaperClipIcon, BookmarkIcon, ArrowUturnLeftIcon} from '@heroicons/vue/24/solid'
+import { computed, ref, watch } from 'vue'
+import { XMarkIcon, PaperClipIcon, BookmarkIcon, ArrowUturnLeftIcon } from '@heroicons/vue/24/solid'
 import PostUserHeader from "@/Components/app/PostUserHeader.vue";
-import {useForm, usePage} from "@inertiajs/vue3";
+import { useForm, usePage } from "@inertiajs/vue3";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import {isImage} from "@/helpers.js";
+import { isImage } from "@/helpers.js";
 import axiosClient from "@/axiosClient.js";
 import UrlPreview from "@/Components/app/UrlPreview.vue";
 import BaseModal from "@/Components/app/BaseModal.vue";
@@ -183,7 +183,7 @@ function getAIContent() {
     axiosClient.post(route('post.aiContent'), {
         prompt: form.body
     })
-        .then(({data}) => {
+        .then(({ data }) => {
             form.body = data.content
             aiButtonLoading.value = false;
         })
@@ -201,8 +201,8 @@ function fetchPreview(url) {
     form.preview_url = url
     form.preview = {}
     if (url) {
-        axiosClient.post(route('post.fetchUrlPreview'), {url})
-            .then(({data}) => {
+        axiosClient.post(route('post.fetchUrlPreview'), { url })
+            .then(({ data }) => {
                 form.preview = {
                     title: data['og:title'],
                     description: data['og:description'],
@@ -256,24 +256,20 @@ function matchLink() {
 </script>
 
 <template>
-    <BaseModal :title="post.id ? 'Update Post' : 'Create Post'"
-               v-model="show"
-               @hide="closeModal">
+    <BaseModal :title="post.id ? 'Update Post' : 'Create Post'" v-model="show" @hide="closeModal">
         <div class="p-4">
-            <PostUserHeader :post="post" :show-time="false" class="mb-4 dark:text-gray-100"/>
+            <PostUserHeader :post="post" :show-time="false" class="mb-4 dark:text-gray-100" />
 
-            <div v-if="formErrors.group_id"
-                 class="bg-red-400 py-2 px-3 rounded text-white mb-3">
+            <div v-if="formErrors.group_id" class="bg-red-400 py-2 px-3 rounded text-white mb-3">
                 {{ formErrors.group_id }}
             </div>
 
             <div class="relative group">
-                <ckeditor :editor="editor" v-model="form.body"
-                          :config="editorConfig" @input="onInputChange"></ckeditor>
+                <ckeditor :editor="editor" v-model="form.body" :config="editorConfig" @input="onInputChange"></ckeditor>
 
-                <UrlPreview :preview="form.preview" :url="form.preview_url"/>
+                <UrlPreview :preview="form.preview" :url="form.preview_url" />
 
-                <button
+                <!-- <button
                     @click="getAIContent"
                     :disabled="aiButtonLoading"
                     class="absolute right-1 top-12 w-8 h-8 p-1 rounded bg-indigo-500 hover:bg-indigo-600 text-white flex justify-center items-center transition-all opacity-0  group-hover:opacity-100 disabled:cursor-not-allowed disabled:bg-indigo-400 disabled:hover:bg-indigo-400">
@@ -292,49 +288,44 @@ function matchLink() {
                               d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
                     </svg>
 
-                </button>
+                </button> -->
             </div>
 
             <div v-if="showExtensionsText"
-                 class="border-l-4 border-amber-500 py-2 px-3 bg-amber-100 mt-3 text-gray-800">
+                class="border-l-4 border-amber-500 py-2 px-3 bg-amber-100 mt-3 text-gray-800">
                 Files must be one of the following extensions <br>
                 <small>{{ attachmentExtensions.join(', ') }}</small>
             </div>
 
             <div v-if="formErrors.attachments"
-                 class="border-l-4 border-red-500 py-2 px-3 bg-red-100 mt-3 text-gray-800">
+                class="border-l-4 border-red-500 py-2 px-3 bg-red-100 mt-3 text-gray-800">
                 {{ formErrors.attachments }}
             </div>
 
             <div class="grid gap-3 my-3" :class="[
-                                        computedAttachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
-                                    ]">
+                computedAttachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+            ]">
                 <div v-for="(myFile, ind) of computedAttachments">
-                    <div
-                        class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative border-2"
+                    <div class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative border-2"
                         :class="attachmentErrors[ind] ? 'border-red-500' : ''">
 
                         <div v-if="myFile.deleted"
-                             class="absolute z-10 left-0 bottom-0 right-0 py-2 px-3 text-sm bg-black text-white flex justify-between items-center">
+                            class="absolute z-10 left-0 bottom-0 right-0 py-2 px-3 text-sm bg-black text-white flex justify-between items-center">
                             To be deleted
 
-                            <ArrowUturnLeftIcon @click="undoDelete(myFile)"
-                                                class="w-4 h-4 cursor-pointer"/>
+                            <ArrowUturnLeftIcon @click="undoDelete(myFile)" class="w-4 h-4 cursor-pointer" />
                         </div>
 
-                        <button
-                            @click="removeFile(myFile)"
+                        <button @click="removeFile(myFile)"
                             class="absolute z-20 right-3 top-3 w-7 h-7 flex items-center justify-center bg-black/30 text-white rounded-full hover:bg-black/40">
-                            <XMarkIcon class="h-5 w-5"/>
+                            <XMarkIcon class="h-5 w-5" />
                         </button>
 
-                        <img v-if="isImage(myFile.file || myFile)"
-                             :src="myFile.url"
-                             class="object-contain aspect-square"
-                             :class="myFile.deleted ? 'opacity-50' : ''"/>
+                        <img v-if="isImage(myFile.file || myFile)" :src="myFile.url"
+                            class="object-contain aspect-square" :class="myFile.deleted ? 'opacity-50' : ''" />
                         <div v-else class="flex flex-col justify-center items-center px-3"
-                             :class="myFile.deleted ? 'opacity-50' : ''">
-                            <PaperClipIcon class="w-10 h-10 mb-3"/>
+                            :class="myFile.deleted ? 'opacity-50' : ''">
+                            <PaperClipIcon class="w-10 h-10 mb-3" />
 
                             <small class="text-center">
                                 {{ (myFile.file || myFile).name }}
@@ -348,24 +339,29 @@ function matchLink() {
         </div>
 
         <div class="flex gap-2 py-3 px-4">
-            <button
-                type="button"
-                class="flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full relative"
-            >
-                <PaperClipIcon class="w-4 h-4 mr-2"/>
+            <button type="button"
+                class="flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full relative">
+                <PaperClipIcon class="w-4 h-4 mr-2" />
                 Attach Files
                 <input @click.stop @change="onAttachmentChoose" type="file" multiple
-                       class="absolute left-0 top-0 right-0 bottom-0 opacity-0">
+                    class="absolute left-0 top-0 right-0 bottom-0 opacity-0">
             </button>
-            <button
-                type="button"
+            <button type="button"
                 class="flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full"
-                @click="submit"
-            >
-                <BookmarkIcon class="w-4 h-4 mr-2"/>
+                @click="submit">
+                <BookmarkIcon class="w-4 h-4 mr-2" />
                 Submit
             </button>
         </div>
     </BaseModal>
 </template>
 
+<style>
+/* don't add "scoped"; note that this will also globalize the CSS for all editors in your project */
+.ck-editor__editable {
+    min-height: 300px;
+    max-height: 500px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+</style>

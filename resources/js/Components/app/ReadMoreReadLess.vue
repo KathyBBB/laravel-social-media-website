@@ -11,9 +11,9 @@ defineProps({
 
 <template>
     <Disclosure v-slot="{ open }">
-        <div class="ck-content-output" :class="contentClass" v-if="!open" v-html="content.substring(0, 200)"/>
+        <div class="ck-content-output" :class="contentClass" v-if="!open" v-html="content.substring(0, 500)"/>
 
-        <template v-if="content && content.length > 200">
+        <template v-if="content && content.length > 500">
             <DisclosurePanel>
                 <div class="ck-content-output" :class="contentClass" v-html="content"/>
             </DisclosurePanel>
